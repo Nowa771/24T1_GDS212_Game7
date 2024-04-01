@@ -8,27 +8,28 @@ public class NoteObject : MonoBehaviour
     public bool canBePressed;
     public KeyCode KeyToPress;
 
-    // Start is called before the first frame update
+    private bool hasBeenPressed = false; // whether the key has been pressed
+
+    
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyToPress))
+        if (Input.GetKeyDown(KeyToPress) && canBePressed && !hasBeenPressed) // Check if the key hasn't been pressed before
         {
-            if(canBePressed)
-            {
-                gameObject.SetActive(false);
-            }
+            hasBeenPressed = true; // key as pressed to prevent subsequent presses
+            gameObject.SetActive(false);
+            GameManager.instance.NoteHit();
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.tag == "Activator")
+        if (other.tag == "Activator")
         {
             canBePressed = true;
         }
@@ -38,8 +39,12 @@ public class NoteObject : MonoBehaviour
     {
         if (other.tag == "Activator")
         {
-           canBePressed = false;
+            canBePressed = false;
+
+            if (!hasBeenPressed) // Check if the key hasn't been pressed before exiting
+            {
+                GameManager.instance.NoteMissed();
+            }
         }
     }
 }
-
